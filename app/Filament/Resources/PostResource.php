@@ -10,20 +10,22 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Checkbox;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\ColorColumn;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\ColorPicker;
+use Filament\Tables\Columns\CheckboxColumn;
 use Filament\Forms\Components\MarkdownEditor;
 use App\Filament\Resources\PostResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\PostResource\RelationManagers;
-use Filament\Forms\Components\FileUpload;
-use Filament\Tables\Columns\CheckboxColumn;
-use Filament\Tables\Columns\ColorColumn;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\Group;
 
 class PostResource extends Resource
 {
@@ -37,21 +39,36 @@ class PostResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('title')->required(),
-                TextInput::make('slug')->required(),
+                Section::make('Create a Post')
+                    ->description('Create posts over here.')
+                    ->schema([
+                        TextInput::make('title')->required(),
+                        TextInput::make('slug')->required(),
+                        
+                        Select::make('category_id')
+                            ->options(Category::all()->pluck('name', 'id'))
+                            ->label('Category'),
 
-                Select::make('category_id')
-                ->options(Category::all()->pluck('name', 'id'))
-                ->label('Category'),
+                        ColorPicker::make('color')->required(),
 
-                ColorPicker::make('color')->required(),
+                        MarkdownEditor::make('content')->required()->columnSpanFull(),
+                    ])->columnSpan(2)->columns(2),
 
-                MarkdownEditor::make('content')->required(),
-                FileUpload::make('thumbnail')->disk('public')->directory('thumbnails'),
-
-                TagsInput::make('tags')->required(),
-                Checkbox::make('published')->required(),
-            ]);
+                Group::make()
+                ->schema([
+                    Section::make('Image')
+                    ->collapsible()
+                    ->schema([
+                        FileUpload::make('thumbnail')->disk('public')->directory('thumbnails'), 
+                    ])->columnSpan(1),
+                    Section::make('Meta')
+                    ->schema([
+                        TagsInput::make('tags')->required(),
+                        Checkbox::make('published')->required(),
+                    ]),
+                    
+                ])
+            ])->columns(3);
     }
 
     public static function table(Table $table): Table
