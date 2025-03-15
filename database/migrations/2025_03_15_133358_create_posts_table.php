@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->foreignId('category_id')->constrained()->cascadeOnDelete();
             $table->text('content')->nullable();
+            $table->json('tags')->nullable();
             $table->boolean('published')->default(false);
             $table->timestamps();
         });

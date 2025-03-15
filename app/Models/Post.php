@@ -23,9 +23,14 @@ class Post extends Model
         'slug',
         'category_id',
         'content',
+        'tags',
         'published',
     ];
 
+
+    protected $casts = [
+        'tags' => 'array',
+    ];
     /**
      * Get the category that owns the post.
      */
