@@ -31,6 +31,8 @@ class PostResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?string $modelLabel = 'All Posts';
+
     public static function form(Form $form): Form
     {
         return $form
@@ -56,13 +58,13 @@ class PostResource extends Resource
     {
         return $table
             ->columns([
+                ImageColumn::make('thumbnail'),
+                ColorColumn::make('color'),
                 TextColumn::make('title'),
                 TextColumn::make('slug'),
 
                 TextColumn::make('category.name'),
 
-                ColorColumn::make('color'),
-                ImageColumn::make('thumbnail'),
                 TextColumn::make('tags'),
                 CheckboxColumn::make('published')
             ])
