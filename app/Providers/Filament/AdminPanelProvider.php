@@ -53,6 +53,10 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            // ->viteTheme([
+            //     'resources/js/filament.js', // Load your JS
+            // ])
+            ;
     }
 }

@@ -43,11 +43,13 @@ class PostResource extends Resource
                     ->description('Create posts over here.')
                     ->schema([
                         TextInput::make('title')->required(),
-                        TextInput::make('slug')->required(),
+                        TextInput::make('slug')
+                        ->unique(ignoreRecord:true)
+                        ->required(),
                         
                         Select::make('category_id')
                             ->options(Category::all()->pluck('name', 'id'))
-                            ->label('Category'),
+                            ->label('Category')->required(),
 
                         ColorPicker::make('color')->required(),
 
@@ -64,7 +66,7 @@ class PostResource extends Resource
                     Section::make('Meta')
                     ->schema([
                         TagsInput::make('tags')->required(),
-                        Checkbox::make('published')->required(),
+                        Checkbox::make('published'),
                     ]),
                     
                 ])
