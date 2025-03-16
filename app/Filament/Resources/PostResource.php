@@ -48,8 +48,10 @@ class PostResource extends Resource
                         ->required(),
                         
                         Select::make('category_id')
-                            ->options(Category::all()->pluck('name', 'id'))
-                            ->label('Category')->required(),
+                        ->label('Category')->required()
+                        // ->options(Category::all()->pluck('name', 'id')),
+                        ->relationship('category', 'name')
+                        ->searchable(),
 
                         ColorPicker::make('color')->required(),
 
