@@ -79,7 +79,7 @@ class PostResource extends Resource
                             ]),
 
                     ]),
-                ])->columnSpanFull()->persistTabQueryString(),
+                ])->columnSpanFull()->persistTabInQueryString(),
 
             ])->columns(3);
     }
