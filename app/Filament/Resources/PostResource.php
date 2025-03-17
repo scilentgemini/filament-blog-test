@@ -9,16 +9,21 @@ use App\Models\Category;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
+use Filament\Forms\Components\Tabs;
+use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\Tabs\Tab;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
+use Filament\Support\Enums\IconPosition;
 use Filament\Tables\Columns\ColorColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Tables\Columns\CheckboxColumn;
@@ -40,47 +45,42 @@ class PostResource extends Resource
     {
         return $form
             ->schema([
-                Section::make('Create a Post')
-                    ->description('Create posts over here.')
+
+                Tabs::make('Create New Post')->tabs([
+                    Tab::make('Tab 1')
+                    ->icon('heroicon-m-inbox')
+                    ->iconPosition(IconPosition::After)
                     ->schema([
                         TextInput::make('title')->required(),
                         TextInput::make('slug')
-                        ->unique(ignoreRecord:true)
-                        ->required(),
-                        
+                            ->unique(ignoreRecord: true)
+                            ->required(),
+
                         Select::make('category_id')
-                        ->label('Category')->required()
-                        // ->options(Category::all()->pluck('name', 'id')),
-                        ->relationship('category', 'name')
-                        ->searchable(),
+                            ->label('Category')->required()
+                            // ->options(Category::all()->pluck('name', 'id')),
+                            ->relationship('category', 'name')
+                            ->searchable(),
 
                         ColorPicker::make('color')->required(),
-
-                        MarkdownEditor::make('content')->required()->columnSpanFull(),
-                    ])->columnSpan(2)->columns(2),
-
-                Group::make()
-                ->schema([
-                    Section::make('Image')
-                    ->collapsible()
-                    ->schema([
-                        FileUpload::make('thumbnail')->disk('public')->directory('thumbnails'), 
-                    ])->columnSpan(1),
-
-                    Section::make('Meta')
-                    ->schema([
-                        TagsInput::make('tags')->required(),
-                        Checkbox::make('published'),
                     ]),
 
-                    // Section::make('Authors')
-                    // ->schema([
-                    //     Select::make('authors')
-                    //     ->multiple()
-                    //     ->relationship('authors', 'name')
-                    // ]),
-                    
-                ])
+                    Tab::make('Content')->schema([
+                        MarkdownEditor::make('content')->required()->columnSpanFull(),
+
+                    ]),
+                    Tab::make('Meta')->schema([
+                        FileUpload::make('thumbnail')->disk('public')->directory('thumbnails'),
+
+                        Section::make('Meta')
+                            ->schema([
+                                TagsInput::make('tags')->required(),
+                                Checkbox::make('published'),
+                            ]),
+
+                    ]),
+                ])->columnSpanFull()->persistTabQueryString(),
+
             ])->columns(3);
     }
 
@@ -90,34 +90,45 @@ class PostResource extends Resource
             ->columns([
 
                 TextColumn::make('id')
-                ->sortable()->searchable()
-                ->toggleable(isToggledHiddenByDefault:true),
+                    ->sortable()->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 ImageColumn::make('thumbnail')->toggleable(),
                 ColorColumn::make('color')->toggleable(),
                 TextColumn::make('title')
-                ->sortable()->searchable()
-                ->toggleable(),
+                    ->sortable()->searchable()
+                    ->toggleable(),
 
                 TextColumn::make('slug')
-                ->sortable()->searchable()
-                ->toggleable(),
+                    ->sortable()->searchable()
+                    ->toggleable(),
 
                 TextColumn::make('category.name')
-                ->sortable()->searchable()
-                ->toggleable(),
+                    ->sortable()->searchable()
+                    ->toggleable(),
 
                 TextColumn::make('tags')->toggleable(),
                 CheckboxColumn::make('published')->toggleable(),
 
                 TextColumn::make('created_at')
-                ->label('Published on')
-                ->date()
-                ->sortable()->searchable()
-                ->toggleable(),
+                    ->label('Published on')
+                    ->date()
+                    ->sortable()->searchable()
+                    ->toggleable(),
             ])
             ->filters([
-                //
+                Filter::make('Published Posts')
+                ->query(
+                    function (Builder $query): Builder {
+                        return $query->where('published', true);
+                    }
+                ),
+                SelectFilter::make('category_id')
+                ->label('Category')
+                ->relationship('category', 'name')
+                ->searchable()
+                ->preload()
+                ->multiple()
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
