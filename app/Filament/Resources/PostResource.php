@@ -9,6 +9,7 @@ use App\Models\Category;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
+use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Checkbox;
@@ -25,7 +26,7 @@ use Filament\Forms\Components\MarkdownEditor;
 use App\Filament\Resources\PostResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\PostResource\RelationManagers;
-use Filament\Forms\Components\Group;
+use App\Filament\Resources\PostResource\RelationManagers\AuthorsRelationManager;
 
 class PostResource extends Resource
 {
@@ -65,11 +66,19 @@ class PostResource extends Resource
                     ->schema([
                         FileUpload::make('thumbnail')->disk('public')->directory('thumbnails'), 
                     ])->columnSpan(1),
+
                     Section::make('Meta')
                     ->schema([
                         TagsInput::make('tags')->required(),
                         Checkbox::make('published'),
                     ]),
+
+                    // Section::make('Authors')
+                    // ->schema([
+                    //     Select::make('authors')
+                    //     ->multiple()
+                    //     ->relationship('authors', 'name')
+                    // ]),
                     
                 ])
             ])->columns(3);
@@ -124,7 +133,7 @@ class PostResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            AuthorsRelationManager::class
         ];
     }
 
